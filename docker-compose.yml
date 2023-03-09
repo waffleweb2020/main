@@ -32,7 +32,7 @@ services:
   nginx:
     image: nginx
     container_name: waffle-nginx
-    ports: ["80:80", "443:443"]
+    ports: ["80:80"]
     volumes:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
       - ./nginx/certbot/conf:/etc/letsencrypt
@@ -43,16 +43,16 @@ services:
     command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
     networks:
       - waffle-network
-  certbot:
-    image: certbot/certbot
-    depends_on:
-      - nginx
-    container_name: waffle-certbot
-    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
-    volumes:
-      - ./nginx/certbot/conf:/etc/letsencrypt
-      - ./nginx/certbot/www:/var/www/certbot
-    command: certonly --webroot --webroot-path=/var/www/html --email waffleweb.it@gmail.com --agree-tos --no-eff-email -d waffle-web.ru -d www.waffle-web.ru
+#  certbot:
+#    image: certbot/certbot
+#    depends_on:
+#      - nginx
+#    container_name: waffle-certbot
+#    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+#    volumes:
+#      - ./nginx/certbot/conf:/etc/letsencrypt
+#      - ./nginx/certbot/www:/var/www/certbot
+#    command: certonly --webroot --webroot-path=/var/www/html --email waffleweb.it@gmail.com --agree-tos --no-eff-email -d waffle-web.ru -d www.waffle-web.ru
 networks:
   waffle-network:
     driver: bridge
