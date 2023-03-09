@@ -1,0 +1,49 @@
+version: '3.0'
+
+services:
+  waffleweb:
+    build:
+      context: ./waffleweb
+    image: nuxt_dev
+    container_name: waffleweb
+    command: npm run start
+    restart: always
+    networks:
+      - waffle-network
+  waffleback:
+    container_name: waffleback
+    build:
+      context: ./waffle-back
+    depends_on:
+      - waffledb
+    networks:
+      - waffle-network
+  waffledb:
+    image: postgres:13.3
+    environment:
+      POSTGRES_DB: "waffle"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "qwerty"
+    ports: ["5430:5432"]
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+    networks:
+      - waffle-network
+  nginx:
+    image: nginx
+    container_name: waffle-nginx
+    ports: ["80:80"]
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - waffleweb
+      - waffleback
+    networks:
+      - waffle-network
+
+networks:
+  waffle-network:
+    driver: bridge
+
+volumes:
+  pgdata:
